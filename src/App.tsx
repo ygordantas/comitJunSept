@@ -19,6 +19,8 @@ function App() {
   const dialogRef: React.Ref<HTMLDialogElement> = useRef(null);
   const timerRef: React.Ref<number> = useRef(null);
 
+  const fileInputRef: React.Ref<HTMLInputElement> = useRef(null);
+
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
     if (isEditMode) {
@@ -91,8 +93,8 @@ function App() {
         <button onClick={onDialogCloseHandler}>Close</button>
       </dialog>
       <button onClick={onDialogOpenHandler}>Show dialog</button>
-      <input type="file" style={{ display: "none" }} />
-      <button>Pick a file</button>
+      <input ref={fileInputRef} type="file" style={{ display: "none" }} />
+      <button onClick={() => fileInputRef.current?.click()}>Pick a file</button>
     </main>
   );
 }
