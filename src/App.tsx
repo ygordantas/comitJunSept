@@ -91,8 +91,12 @@ function App() {
         <button onClick={onDialogCloseHandler}>Close</button>
       </dialog>
       <button onClick={onDialogOpenHandler}>Show dialog</button>
+      <input type="file" style={{ display: "none" }} />
+      <button>Pick a file</button>
     </main>
   );
 }
 
 export default App;
+
+// on Pick a file button click it should open a file picker
