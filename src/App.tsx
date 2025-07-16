@@ -1,7 +1,9 @@
-import { useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./App.css";
 import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
+import Dialog from "./components/Dialog";
+import Menu from "./components/Menu";
 
 const MAX_TIMER_FOR_DIALOG = 15000;
 
@@ -13,13 +15,34 @@ function App() {
   >();
   const [closeDialogTime, setCloseDialogTime] =
     useState<number>(MAX_TIMER_FOR_DIALOG);
+  const [pokemon, setPokemon] = useState<object | null>(null);
+  const [openModal, setOpenModal] = useState(false);
 
   const isEditMode = todoIndexBeingEdited !== undefined;
-
-  const dialogRef: React.Ref<HTMLDialogElement> = useRef(null);
   const timerRef: React.Ref<number> = useRef(null);
 
   const fileInputRef: React.Ref<HTMLInputElement> = useRef(null);
+
+  useEffect(() => {
+    // promises // async code
+    // that in a given time it will return something
+
+    // async/await
+    const getData = async () => {
+      const data = await fetch("https://pokeapi.co/api/v2/pokemon/ditto");
+      const dataJson = await data.json();
+      setPokemon(dataJson);
+    };
+
+    //promise chaining
+
+    // fetch("https://pokeapi.co/api/v2/pokemon/ditto")
+    // .then((response) =>
+    //   response.json().then((data) => setPokemon(data))
+    // );
+
+    getData();
+  }, []);
 
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
     event.preventDefault();
@@ -53,11 +76,10 @@ function App() {
   };
 
   const onDialogOpenHandler = () => {
+    setOpenModal(true);
     timerRef.current = setInterval(() => {
       setCloseDialogTime((prev) => (prev -= 500));
     }, 500);
-
-    dialogRef.current?.showModal();
   };
 
   const onDialogCloseHandler = () => {
@@ -66,7 +88,7 @@ function App() {
       timerRef.current = null;
     }
     setCloseDialogTime(MAX_TIMER_FOR_DIALOG);
-    dialogRef.current?.close();
+    setOpenModal(false);
     setTodoText("");
     setTodoIndexBeingEdited(undefined);
   };
@@ -77,12 +99,27 @@ function App() {
 
   return (
     <main>
+      <Menu
+        buttons={
+          <div>
+            <button>My button</button>
+            <button>My second button</button>
+          </div>
+        }
+      >
+        <p>
+          Lorem ipsum dolor sit amet consectetur adipisicing elit. Ipsa officia
+          ullam, fugit expedita voluptatum, adipisci itaque omnis ea tempore
+          doloribus molestiae delectus asperiores nulla, totam non illo libero
+          exercitationem quidem.
+        </p>
+      </Menu>
       <TodoList
         onTodoDeleteClick={onDeleteClickHandler}
         onTodoEditClick={onEditClickHandler}
         todos={todos}
       />
-      <dialog ref={dialogRef}>
+      <Dialog open={openModal}>
         <TodoForm
           todoText={todoText}
           onTodoTextChange={onTodoTextChangeHandler}
@@ -91,14 +128,13 @@ function App() {
         />
         <progress value={closeDialogTime} max={MAX_TIMER_FOR_DIALOG} />
         <button onClick={onDialogCloseHandler}>Close</button>
-      </dialog>
+      </Dialog>
       <button onClick={onDialogOpenHandler}>Show dialog</button>
       <input ref={fileInputRef} type="file" style={{ display: "none" }} />
       <button onClick={() => fileInputRef.current?.click()}>Pick a file</button>
+      {/* <code>{pokemon ? JSON.stringify(pokemon) : "Loading..."}</code> */}
     </main>
   );
 }
 
 export default App;
-
-// on Pick a file button click it should open a file picker
