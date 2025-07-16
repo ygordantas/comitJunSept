@@ -233,3 +233,153 @@ const Box = ({ container = "div" }) => {
 
 ---
 
+
+## 🔄 `useEffect` in React – Notes & Examples
+
+`useEffect` lets you run **side effects** in your React components.  
+Side effects are operations that affect something **outside** the component’s render flow, like:
+
+- Fetching data
+- Setting up a timer
+- Adding event listeners
+- Working with `localStorage`
+- Cleaning up resources
+
+---
+
+## 🧼 Cleanup Function
+
+The **cleanup function** is the function you return inside `useEffect`.
+
+### ✅ It runs:
+1. Before the component unmounts
+2. Before the effect re-runs due to a dependency change
+
+### ❌ It does *not* run on the initial render.
+
+### 📌 Syntax
+
+```tsx
+useEffect(() => {
+  // Setup logic here
+
+  return () => {
+    // Cleanup logic here
+  };
+}, [dependencies]);
+```
+
+---
+
+## 🧾 Examples
+
+### ✅ 1. **Fetching Data**
+
+```tsx
+useEffect(() => {
+  fetch("https://api.example.com/data")
+    .then(res => res.json())
+    .then(data => setItems(data));
+}, []);
+```
+
+Runs once when the component mounts.
+
+---
+
+### ✅ 2. **Timer (setInterval)**
+
+```tsx
+useEffect(() => {
+  const id = setInterval(() => {
+    setTimeLeft(prev => prev - 1);
+  }, 1000);
+
+  return () => clearInterval(id); // Cleanup
+}, []);
+```
+
+---
+
+### ✅ 3. **Event Listener**
+
+```tsx
+useEffect(() => {
+  const handleKey = (e: KeyboardEvent) => {
+    if (e.key === "Escape") onClose();
+  };
+
+  window.addEventListener("keydown", handleKey);
+  return () => window.removeEventListener("keydown", handleKey);
+}, []);
+```
+
+---
+
+### ✅ 4. **Abort Fetch Request**
+
+```tsx
+useEffect(() => {
+  const controller = new AbortController();
+
+  fetch("/api/data", { signal: controller.signal })
+    .then(res => res.json())
+    .then(data => setData(data))
+    .catch(err => {
+      if (err.name === "AbortError") {
+        console.log("Fetch aborted");
+      }
+    });
+
+  return () => controller.abort();
+}, []);
+```
+
+---
+
+### ✅ 5. **Responding to Prop or State Changes**
+
+```tsx
+useEffect(() => {
+  console.log("Fetching new user:", userId);
+  fetch(`/api/user/${userId}`)
+    .then(res => res.json())
+    .then(data => setUser(data));
+
+  return () => {
+    console.log("Cleanup for userId:", userId);
+  };
+}, [userId]);
+```
+
+---
+
+## 📅 When Is the Cleanup Function Called?
+
+| Situation                  | Cleanup Runs? |
+|---------------------------|---------------|
+| Initial render            | ❌ No          |
+| Dependency changes        | ✅ Yes         |
+| Component unmounts        | ✅ Yes         |
+
+---
+
+## 🧪 When to Use `useEffect`
+
+| Scenario                               | Should Use `useEffect`? | Why?                                     |
+|----------------------------------------|--------------------------|------------------------------------------|
+| Fetch data after mount                 | ✅ Yes                   | Side effect                              |
+| Add/remove global event listeners      | ✅ Yes                   | Needs cleanup                            |
+| Set a timeout or interval              | ✅ Yes                   | Requires cleanup                         |
+| Sync state with localStorage           | ✅ Yes                   | Accesses browser APIs                    |
+| Show/hide component using state        | ❌ No                    | Just render logic                        |
+| Track clicks during a game             | ❌ No                    | Use `useRef` instead                     |
+
+---
+
+## 🛑 Common Mistakes
+
+- ❌ Running `useEffect` with incorrect dependencies
+- ❌ Forgetting cleanup for event listeners or intervals
+- ❌ Using `useEffect` when a simple state or ref would do
+
