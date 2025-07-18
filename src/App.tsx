@@ -4,6 +4,7 @@ import TodoForm from "./components/TodoForm";
 import TodoList from "./components/TodoList";
 import Dialog from "./components/Dialog";
 import Menu from "./components/Menu";
+import AlertMessage from "./components/AlertMessage";
 
 const MAX_TIMER_FOR_DIALOG = 15000;
 
@@ -17,6 +18,7 @@ function App() {
     useState<number>(MAX_TIMER_FOR_DIALOG);
   const [pokemon, setPokemon] = useState<object | null>(null);
   const [openModal, setOpenModal] = useState(false);
+  const [showAlertMessage, setShowAlertMessage] = useState(false);
 
   const isEditMode = todoIndexBeingEdited !== undefined;
   const timerRef: React.Ref<number> = useRef(null);
@@ -27,6 +29,7 @@ function App() {
     // promises // async code
     // that in a given time it will return something
 
+    // const abortController = new AbortController();
     // async/await
     const getData = async () => {
       const data = await fetch("https://pokeapi.co/api/v2/pokemon/ditto");
@@ -42,6 +45,16 @@ function App() {
     // );
 
     getData();
+
+    // clean up functions are great to clean up permanent events
+    // registering event handlers document.addEvent....
+    // timers
+
+    return () => {
+      // 1. the code here is executed once the component umount
+      // 2. Or before the useEffect gets executed again
+      // abortController.abort();
+    };
   }, []);
 
   const onSubmitHandler = (event: React.FormEvent<HTMLFormElement>) => {
@@ -97,6 +110,10 @@ function App() {
     onDialogCloseHandler();
   }
 
+  const closeInterval = () => {
+    setShowAlertMessage(false);
+  };
+
   return (
     <main>
       <Menu
@@ -133,6 +150,11 @@ function App() {
       <input ref={fileInputRef} type="file" style={{ display: "none" }} />
       <button onClick={() => fileInputRef.current?.click()}>Pick a file</button>
       {/* <code>{pokemon ? JSON.stringify(pokemon) : "Loading..."}</code> */}
+
+      <Dialog open={showAlertMessage}>
+        <AlertMessage onClose={closeInterval} />
+      </Dialog>
+      <button onClick={() => setShowAlertMessage(true)}>Show Alert</button>
     </main>
   );
 }
